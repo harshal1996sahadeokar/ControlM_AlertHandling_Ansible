@@ -1,0 +1,5 @@
+[controlm]
+bmc-controlm-server ansible_host=192.168.1.10
+
+[servicenow]
+servicenow-lamp-server ansible_host=192.168.1.20
