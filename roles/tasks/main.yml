@@ -1,0 +1,11 @@
+---
+- name: Check ServiceNow LAMP Server Status
+  include_tasks: check_lamp.yml
+
+- name: Redirect Alerts if ServiceNow is Down
+  include_tasks: redirect_alerts.yml
+  when: lamp_status.failed
+
+- name: Restore Alerts to ServiceNow when Back Online
+  include_tasks: restore_alerts.yml
+  when: not lamp_status.failed
