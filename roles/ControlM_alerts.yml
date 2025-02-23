@@ -1,0 +1,6 @@
+---
+- name: Automate BMC Control-M Alert Handling
+  hosts: localhost
+  gather_facts: no
+  roles:
+    - controlm_alerts
