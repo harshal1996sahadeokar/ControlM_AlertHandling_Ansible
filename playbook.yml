@@ -1,0 +1,33 @@
+---
+- name: Monitor and Redirect BMC Control-M Alerts
+  hosts: localhost
+  gather_facts: no
+  tasks:
+    - name: Check if ServiceNow LAMP Server is Up
+      ansible.builtin.ping:
+      delegate_to: servicenow-lamp-server
+      ignore_errors: yes
+      register: lamp_status
+
+    - name: Redirect Alerts to Backup Channel if ServiceNow is Down
+      when: lamp_status.failed
+      block:
+        - name: Update BMC Control-M Alert Configuration
+          ansible.builtin.shell: |
+            curl -X POST -H "Content-Type: application/json" \
+            -d '{"destination":"backup_alerting_system"}' \
+            http://bmc-controlm-server/api/update_alerts
+          register: alert_update_result
+
+        - name: Notify via Slack
+          community.general.slack:
+            token: "{{ slack_token }}"
+            msg: "ServiceNow LAMP Server is down! Redirecting Control-M alerts to backup."
+            channel: "#alerts"
+
+    - name: Restore Alerts to ServiceNow Once Server is Back
+      when: not lamp_status.failed
+      ansible.builtin.shell: |
+        curl -X POST -H "Content-Type: application/json" \
+        -d '{"destination":"servicenow"}' \
+        http://bmc-controlm-server/api/update_alerts
