@@ -1,0 +1,6 @@
+---
+- name: Ping ServiceNow LAMP Server
+  ansible.builtin.ping:
+  delegate_to: servicenow-lamp-server
+  ignore_errors: yes
+  register: lamp_status
