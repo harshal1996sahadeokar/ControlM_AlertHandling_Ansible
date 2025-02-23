@@ -1,0 +1,18 @@
+---
+- name: Redirect BMC Control-M Alerts to Backup System
+  ansible.builtin.uri:
+    url: "{{ controlm_api_url }}"
+    method: POST
+    body_format: json
+    body:
+      destination: "{{ backup_alerting_system }}"
+    headers:
+      Content-Type: "application/json"
+  register: alert_update_result
+
+- name: Notify Slack Channel
+  community.general.slack:
+    token: "{{ slack_token }}"
+    msg: "ServiceNow LAMP Server is down! Redirecting Control-M alerts to backup."
+    channel: "#alerts"
+  when: slack_token is defined
